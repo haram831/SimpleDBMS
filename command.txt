@@ -1,0 +1,29 @@
+**가상환경**
+
+가상환경 진입
+source myenv/bin/activate
+
+가상환경 종료
+deactivate
+
+경로 이동
+cd /mnt/c/Users/gim22/OneDrive/문서/2025-1/데이터베이스/project1-3
+
+
+cd /mnt/c/Users/gim22/OneDrive/문서/2025-1/데이터베이스/project2-1/project2
+코드 실행
+
+상위 디렉토리로 이동 
+cd ..
+
+test code
+
+select * from department join professor on department.dept_id = professor.dept_id;
+
+select * from department join professor on department.dept_id = professor.dept_id join teaches on professor.prof_id = teaches.prof_id;
+
+SHOW VARIABLES LIKE 'max_allowed_packet';
+
+source venv/bin/activate 
+
+mysql -u root -p

@@ -1,0 +1,169 @@
+%import common._STRING_ESC_INNER
+%import common.SIGNED_INT       -> INT
+%import common.LETTER           -> C
+%import common.DIGIT            -> N
+%import common.WS
+%ignore WS
+
+// Parenthesis
+LP : "("
+RP : ")"
+DQ : "\""
+SQ : "'"
+
+// Tokens
+STR : DQ _STRING_ESC_INNER DQ | SQ _STRING_ESC_INNER SQ
+DATE : N N N N "-" N N "-" N N
+IDENTIFIER : C (C | "_")*
+
+// Keywords
+TYPE_INT : "int"i //해당 문자가 입력으로 들어올 때 대소문자 구분 없이 인식한다. 
+TYPE_CHAR : "char"i
+TYPE_DATE : "date"i
+EXIT : "exit"i
+CREATE : "create"i
+DROP : "drop"i
+SHOW : "show"i
+SET : "set"i
+TABLE : "table"i
+TABLES : "tables"i
+ORDER : "order"i
+BY : "by"i
+ASC : "asc"i
+DESC : "desc"i
+TO : "to"i
+NOT : "not"i
+NULL : "null"i
+PRIMARY : "primary"i
+FOREIGN : "foreign"i
+KEY : "key"i
+REFERENCES : "references"i
+SELECT : "select"i
+FROM : "from"i
+WHERE : "where"i
+AS : "as"i
+IS : "is"i
+AND : "and"i
+OR : "or"i
+WILDCARD : "*"
+comp_op: "<="  -> lessequal
+       | "<"   -> lessthan
+       | ">="  -> greaterequal
+       | ">"   -> greaterthan
+       | "="   -> equal
+       | "!="  -> notequal
+INSERT : "insert"i
+EXPLAIN : "explain"i
+DESCRIBE : "describe"i
+RENAME : "rename"i
+TRUNCATE : "truncate"i
+UPDATE : "update"i
+INTO : "into"i
+VALUES : "values"i
+DELETE : "delete"i
+JOIN : "join"i
+ON : "on"i
+
+
+
+// QUERY
+command : query_list | exit_query
+query_list : (query ";")+
+query : create_table_query
+      | select_query
+      | insert_query
+      | drop_table_query
+      | rename_query
+      | explain_query
+      | describe_query
+      | desc_query
+      | show_query
+      | delete_query
+      | update_query
+      | truncate_query
+
+start : command
+
+// CREATE TABLE
+create_table_query : CREATE TABLE table_name table_element_list
+table_element_list : LP table_element ("," table_element)* RP
+table_element : column_definition
+              | table_constraint_definition
+column_definition : column_name data_type [NOT NULL]
+table_constraint_definition : primary_key_constraint
+                            | referential_constraint
+primary_key_constraint : PRIMARY KEY column_name_list
+referential_constraint : FOREIGN KEY column_name_list REFERENCES table_name column_name_list
+
+column_name_list : LP column_name ("," column_name)* RP
+data_type : TYPE_INT
+          | TYPE_CHAR LP INT RP
+          | TYPE_DATE
+table_name : IDENTIFIER
+column_name : IDENTIFIER
+
+
+// DROP TABLE, EXPLAIN, DESCRIBE, DESC, SHOW TABLES, RENAME, TRUNCATE
+//DROP TABLE
+drop_table_query : DROP TABLE table_name
+
+//EXPLAIN, DESCRIBE, DESC
+explain_query : EXPLAIN table_name
+describe_query : DESCRIBE table_name
+desc_query : DESC table_name
+
+//SHOW TABLES
+show_query : SHOW TABLES
+
+//RENAME
+rename_query : RENAME rename_table_list
+rename_table_list : rename_table ("," rename_table)*
+rename_table : table_name TO table_name
+
+//TRUNCATE
+truncate_query : TRUNCATE table_name
+
+// SELECT
+select_query : SELECT select_list table_expression
+select_list : WILDCARD
+            | selected_column ("," selected_column)*
+selected_column : [table_name "."] column_name [AS column_name]
+table_expression : from_clause [where_clause] [order_by]
+from_clause : FROM table_reference_list
+table_reference_list : referred_table
+referred_table : table_name (join_clause)*
+join_clause : JOIN table_name ON join_condition
+join_condition : table_name "." column_name "=" table_name "." column_name
+
+where_clause: WHERE boolean_expr
+boolean_expr: boolean_term ((OR | AND) boolean_term)*
+boolean_term: [NOT] predicate
+predicate: comparison_predicate | null_predicate
+
+comparison_predicate: comp_operand comp_op comp_operand
+null_predicate: column_reference IS [NOT] "null"i
+
+comp_operand: comparable_value | column_reference
+comparable_value: INT | STR | DATE
+
+column_reference: [table_name "."] column_name
+
+//order_by
+order_by: ORDER BY order_item ("," order_item)*
+order_item: column_name [ASC | DESC]
+ 
+
+// INSERT
+insert_query : INSERT INTO insert_table VALUES insert_values
+insert_table : table_name [table_columns]
+table_columns : LP column_name ("," column_name)* RP
+insert_values : LP comparable_value ("," comparable_value)* RP
+
+// DELETE
+delete_query : DELETE FROM table_name [where_clause]
+
+// UPDATE TABLES
+update_query : UPDATE table_name SET column_name "=" comparable_value [where_clause]
+
+//EXIT 
+exit_query : EXIT ";"

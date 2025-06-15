@@ -1,0 +1,89 @@
+CREATE TABLE student (id INT, name CHAR(20), birth DATE, PRIMARY KEY(id));
+CREATE TABLE course (code CHAR(10), title CHAR(50), PRIMARY KEY(code));
+CREATE TABLE enroll (student_id INT, course_code CHAR(10), grade INT, FOREIGN KEY(student_id) REFERENCES student(id), FOREIGN KEY(course_code) REFERENCES course(code));
+CREATE TABLE department (dept_id INT, dept_name CHAR(30), PRIMARY KEY(dept_id));
+CREATE TABLE professor (prof_id INT, prof_name CHAR(30), dept_id INT, PRIMARY KEY(prof_id), FOREIGN KEY(dept_id) REFERENCES department(dept_id));
+CREATE TABLE schedule (course_code CHAR(10), day CHAR(10), time CHAR(5), PRIMARY KEY(course_code), FOREIGN KEY(course_code) REFERENCES course(code));
+CREATE TABLE room (room_no CHAR(10), building CHAR(30), PRIMARY KEY(room_no));
+CREATE TABLE teaches (prof_id INT, course_code CHAR(10), FOREIGN KEY(prof_id) REFERENCES professor(prof_id), FOREIGN KEY(course_code) REFERENCES course(code));
+CREATE TABLE login (user_id CHAR(20), password CHAR(20), PRIMARY KEY(user_id));
+CREATE TABLE logs (user_id CHAR(20), timestamp DATE, FOREIGN KEY(user_id) REFERENCES login(user_id));
+
+
+INSERT INTO student VALUES (1, 'Alice', '2000-01-01');
+INSERT INTO student VALUES (2, 'Bob', '2001-03-15');
+INSERT INTO student(id, name, birth) VALUES (3, 'Charlie', '1999-12-20');
+INSERT INTO course VALUES ('CS101', 'Intro to CS');
+INSERT INTO course VALUES ('MATH123', 'Calculus I');
+INSERT INTO enroll VALUES (1, 'CS101', 95);
+INSERT INTO enroll (student_id, course_code, grade) VALUES (2, 'MATH123', 88);
+INSERT INTO department VALUES (10, 'Computer Science');
+INSERT INTO professor VALUES (100, 'Dr. Smith', 10);
+INSERT INTO schedule VALUES ('CS101', 'Mon', '09:00');
+INSERT INTO schedule VALUES ('MATH123', 'Tue', '11:00');
+INSERT INTO room VALUES ('101', 'Main');
+INSERT INTO teaches VALUES (100, 'CS101');
+INSERT INTO login VALUES ('alice123', 'pass1');
+INSERT INTO logs VALUES ('alice123', '2025-05-19');
+INSERT INTO student VALUES (4, 'David', '2002-06-01');
+INSERT INTO course VALUES ('PHYS101', 'Physics I');
+INSERT INTO enroll VALUES (3, 'PHYS101', 78);
+INSERT INTO professor VALUES (101, 'Dr. Kim', 10);
+INSERT INTO teaches VALUES (101, 'PHYS101');
+
+
+SELECT * FROM student;
+SELECT * FROM course;
+SELECT * FROM enroll;
+SELECT * FROM professor;
+SELECT * FROM student WHERE name = 'Bob';
+SELECT * FROM enroll WHERE grade >= 90;
+SELECT * FROM student WHERE id = 3;
+SELECT * FROM logs WHERE timestamp = '2025-05-19';
+SELECT * FROM teaches WHERE course_code = 'CS101';
+SELECT * FROM room WHERE building = 'Main';
+SELECT * FROM schedule WHERE day = 'Mon';
+SELECT * FROM professor WHERE prof_name = 'Dr. Smith';
+SELECT * FROM department WHERE dept_name = 'Computer Science';
+SELECT * FROM student WHERE birth > '2000-01-01';
+SELECT * FROM course WHERE title = 'Calculus I';
+SELECT * FROM enroll WHERE student_id = 1 AND grade > 90;
+SELECT * FROM student WHERE name = 'Alice' OR name = 'David';
+SELECT * FROM logs WHERE user_id IS NOT NULL;
+SELECT * FROM login WHERE password = 'pass1';
+SELECT * FROM course WHERE code = 'CS101';
+
+
+DELETE FROM student WHERE name = 'Charlie';
+DELETE FROM enroll WHERE grade < 80;
+DELETE FROM professor WHERE prof_name = 'Dr. Kim';
+DELETE FROM schedule WHERE day = 'Tue';
+DELETE FROM room WHERE building = 'Main';
+DELETE FROM teaches WHERE course_code = 'PHYS101';
+DELETE FROM login WHERE user_id = 'alice123';
+DELETE FROM logs WHERE user_id = 'alice123';
+DELETE FROM course WHERE code = 'PHYS101';
+DELETE FROM student WHERE birth < '2000-01-01';
+
+
+TRUNCATE logs;
+TRUNCATE login;
+DROP TABLE schedule;
+DROP TABLE teaches;
+DROP TABLE room;
+TRUNCATE professor;
+DROP TABLE logs;
+TRUNCATE enroll;
+DROP TABLE login;
+DROP TABLE department;
+RENAME TABLE student TO learners;
+RENAME TABLE course TO subjects;
+RENAME TABLE enroll TO registration;
+RENAME TABLE professor TO faculty;
+RENAME TABLE department TO divisions;
+EXPLAIN learners;
+DESC subjects;
+SHOW TABLES;
+EXPLAIN registration;
+DESC faculty;
+EXIT;
